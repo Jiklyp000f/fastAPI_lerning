@@ -34,7 +34,7 @@ def init_db():
 init_db()  # Инициализация базы данных
 
 @app.post("/items/")
-def create_item(item: Item):
+async def create_item(item: Item):
     # Сохранение данных в базу
     with get_db_connection() as conn:
         cursor = conn.cursor()
@@ -46,7 +46,7 @@ def create_item(item: Item):
     return {"id": item_id, "name": item.name, "price": item.price, "is_offer": item.is_offer}
 
 @app.get("/items/{item_id}")
-def read_item(item_id: int):
+async def read_item(item_id: int):
     # Получение данных из базы
     with get_db_connection() as conn:
         cursor = conn.cursor()
@@ -57,7 +57,7 @@ def read_item(item_id: int):
         return {"error": "Item not found"}
 
 @app.put("/items/{item_id}")
-def update_item(item_id: int, item: Item):
+async def update_item(item_id: int, item: Item):
     # Обновление данных в базе
     with get_db_connection() as conn:
         cursor = conn.cursor()
@@ -66,3 +66,14 @@ def update_item(item_id: int, item: Item):
         """, (item.name, item.price, item.is_offer, item_id))
         conn.commit()
     return {"id": item_id, "name": item.name, "price": item.price, "is_offer": item.is_offer}
+
+@app.delete("/items/{item_id}")
+async def delete_item(item_id: int):
+    # Удаление данных из базы
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+        DELETE FROM items WHERE id = ?
+        """, (item_id,))
+        conn.commit()
+    return {"id": item_id}
